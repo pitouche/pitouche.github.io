@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5. 5. Le tour est passé — saga V100</title>
+<style>
+:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  color: #1a1a1a;
+  background: #fdfdfc;
+}
+@media (prefers-color-scheme: dark) {
+  body { color: #d8d8d4; background: #121312; }
+  a { color: #2f7d4f; }
+  .meta, .foot, .site-head a, .post-index .m { color: #8a8a86; }
+  blockquote { border-color: #3a3f3b; color: #b8b8b4; }
+  hr { border-color: #2a2c2a; }
+  img { border-color: #2a2c2a; }
+  code { background: #1e201e; }
+}
+.page { max-width: 720px; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
+a { color: #2f7d4f; text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1 { font-size: 1.9rem; line-height: 1.25; margin: 0 0 0.5rem; }
+h2 { font-size: 1.35rem; margin: 2.2rem 0 0.8rem; }
+.meta { color: #6b6b66; font-size: 0.95rem; margin-bottom: 2rem; }
+p { margin: 0 0 1.1rem; }
+img { max-width: 100%; height: auto; border: 1px solid #e3e3df; border-radius: 4px; }
+blockquote { margin: 1.4rem 0; padding: 0.2rem 1.2rem; border-left: 3px solid #2f7d4f; color: #444; }
+code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.88em; background: #f0f0ec; padding: 0.1em 0.35em; border-radius: 3px; }
+ul, ol { padding-left: 1.4rem; }
+li { margin-bottom: 0.45rem; }
+hr { border: none; border-top: 1px solid #e3e3df; margin: 2.5rem 0; }
+.site-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2.5rem; }
+.site-head .brand { font-weight: 600; font-size: 1.05rem; }
+.site-head a { font-size: 0.95rem; }
+.post-index { list-style: none; padding: 0; }
+.post-index li { margin-bottom: 1.1rem; }
+.post-index .num { color: #2f7d4f; font-family: ui-monospace, Menlo, monospace; margin-right: 0.5rem; }
+.post-index .t { font-size: 1.08rem; font-weight: 600; }
+.post-index .m { display: block; color: #6b6b66; font-size: 0.88rem; margin-top: 0.1rem; }
+.nav-p { margin-top: 2.5rem; font-size: 0.95rem; }
+.nav-p a { margin-right: 1.5rem; }
+</style>
+</head>
+<body>
+<div class="page">
+<div class="site-head">
+  <a class="brand" href="../">saga V100</a>
+  <a href="../">tous les chapitres</a>
+</div>
+<h1>5. Le tour est passé</h1>
+<p>Il y a eu un moment, après avoir re-benché trois fois <strong>toutes</strong> les options sur la table, où le débit était bon. Pour moi, le tour est passé.</p>
+<p>Et il y a une raison encore plus décisive : cette carte graphique est <em>out of date</em>. NVIDIA ne la supporte plus, personne ne publiera jamais une optimisation pour elle, et le niveau d'optimisation qu'on a atteint est, pour ce matériel, très correct. La veine est épuisée. On change de terrain.</p>
+<h2>Le prospecteur et la foreuse</h2>
+<p>Au début de la chasse, je m'identifiais à un prospecteur d'or : quelqu'un qui creuse n'importe où, sans savoir. On testait des pistes, on mesurait, on ne savait pas ce qui allait payer. H2 a payé trois jours. T3, le reste.</p>
+<p>À la fin, on avait une <strong>foreuse</strong> : CUPTI et nsys donnaient, avant de creuser, la qualité de la terre sous nos pieds — combien de pourcents du total représente tel kernel, quel impact peut attendre une optimisation ciblée. À un moment, Kolbo-5 a fini par me parler de <strong>ROI</strong> pour classer les pistes possibles : espace théorique ×2-3 sur ce kernel, mais le coût de re-compilation rend le gain applicatif à 4-5 %, donc on repousse. La chasse est devenue une discipline de décision, plus de la pelle.</p>
+<p>Pelle, foreuse, ROI. C'est l'arc entier.</p>
+<h2>90 sacs de ciment</h2>
+<p>Je suis quelqu'un de très transverse, je fonctionne beaucoup au modèle mental — celui qui cherche les invariants et les symétries dans les systèmes. J'ai une sorte de boucle quantique qui m'anime : je sais où je vais, mais je ne sais pas toujours expliquer mes choix, et pourtant ils sont dictés par mon expérience. Je sais sentir quand une étape est vraiment franchie.</p>
+<p>Pour attaquer un grand problème, ma méthode tient en une image : 90 sacs de ciment de 30 kilos. Regardés en face, c'est 2,7 tonnes, et on se noie instantanément. Non. On va vers le premier sac, on le soulève, on l'amène à sa position finale. Une minute par sac, c'est une heure et demie. <strong>Plus on regarde le tas, moins on avance.</strong></p>
+<p>C'est exactement comme ça que la saga s'est faite : un sac à la fois. Le format de la 1070. Le split des sources. Le cône d'alu. La ligne BIOS. Le port d'un kernel. Une option de batch. Un dashboard. Chaque sac posé à sa position finale, mesuré, validé. Et <strong>même un NO-GO est un enseignement fort, peut-être même plus fort qu'une réussite</strong> — H2 jeté à la poubelle a dit quelque chose que T3 n'a pas pu dire : que le processus est gouverné par les chiffres, pas par l'attachement.</p>
+<p>Cette rétrospective, c'est une façon d'ancrer tout ça. Parce que tout ça n'est pas qu'une histoire de recherche de performance. C'est aussi un auto-apprentissage complet des concepts de l'IA, vu sous un angle large. En juin, j'y connaissais strictement rien. En novembre, je parle de kernels disséqués au step près. Et je sais aujourd'hui que la question n'était jamais « combien de tokens par seconde » — c'était « combien à 170k ». Le débit brut, tout le monde l'a au départ ; la pente, il faut aller la chercher. Le mur du contexte n'a pas bougé, lui non plus : il était au début (faire rentrer mon code dans un 7B), il est à la fin (170k sur une V100). Ce qui a grossi, c'est la machine — et la personne qui la mesure.</p>
+<h2>RoboFlic</h2>
+<p>Kolbo-5 doit son nom à RoboFlic, un vieux robot de la police de <em>L'Incal</em>, mis au rebut et récupéré par l'anti-héros John Difool. La référence est tombée juste : un robot déclassé, récupéré par un bricoleur qui n'avait même pas de compte ChatGPT il y a cinq mois. À ses côtés, une carte de datacenter que le marché avait enterrée, remise en service à 35-40 tokens par seconde à 170 000 tokens de contexte. Deux objets au rebut, un même artisan, un même résultat.</p>
+<p><img alt="RoboFlic, de L'Incal — l'avatar de Kolbo-5" src="../photos/kolbo-avatar.png" /></p>
+<p>Et la machine, elle, est toujours là. En production, jour et nuit. Le dashboard dit le reste : <strong>zéro erreur sur la dernière heure, latence moyenne stable</strong>, le 27B en Q6 chargé sur la V100, la 1070 — celle qui a fait tourner des jeux pendant dix ans — qui, elle, a trouvé une seconde vie dessus.</p>
+<p><img alt="Le dashboard de production : latence, erreurs, requêtes par endpoint, VRAM" src="../photos/grafana_dash2_stats_endpoints.png" /></p>
+<h2>Les remerciements</h2>
+<p>Ce qu'on a fait est 100 % basé sur des pistes disjointes, publiées par des personnes différentes. C'est un réel assemblage de plusieurs mondes.</p>
+<p>Il y a des choses que Kolbo-5 a trouvées tout seul, et je ne sais même pas toujours de quoi il s'agit. Il y a des pistes venues de dépôts qu'il a lus en silence. Il y a les miennes. Trois sources que je ne distingue plus toujours, et c'est honnête de le dire.</p>
+<p>Je tiens à citer, à remercier :</p>
+<ul>
+<li><strong>anyei</strong>, pour le port #153 <code>fattn-mma-volta-small</code> — le T3, l'optimisation reine, le kernel qui a détroné H2 et qui tient la production. C'est le master de T3.</li>
+<li><strong>Kolbo-5</strong>, pour les briques qu'il a proposées et que le bench a validées — les ports entre versions, les raffinements, les gains qui viennent de nulle part et que je n'aurais pas su nommer. Sa part est réelle, et je l'assume.</li>
+<li><strong>Tous les contributeurs</strong> que je ne peux pas identifier, et dont le travail a été lu, porté, puis re-validé sur cette machine, dans et hors de llama.cpp.</li>
+<li><strong>Mon chien</strong>, sans qui je ne serais pas sorti régulièrement de chez moi pour aller m'aérer dans les bois.</li>
+</ul>
+<p>Et il y a la part humaine : le cadrage, les GO et les NO-GO, les trois boucles de re-vérification, le superviseur, la décision d'arrêter. C'est moi. Et c'est nous.</p>
+<h2>La suite</h2>
+<p>Le tour est passé pour cette terre. Mais je me dois de continuer, pour apprendre.</p>
+<p>L'objectif suivant, ce sont les sujets que j'ai fait exprès d'ignorer pendant la chasse — ceux que je ressens comme immenses, et que je sais n'attaquer qu'un sac à la fois. Au centre, il y a le cache KV. Le premier chantier est déjà en tête : la persistance — d'abord en RAM, puis sur SSD — pour ne pas refaire un préfill complet à chaque nouvelle session. On ne repaye pas ce qu'on a déjà payé. Et autour, des trucs de dingue, que sûrement plein de gens ont déjà explorés — mais je me dois de le faire maintenant. Le KV est passionnant de par sa nature, de par ce qu'il représente : jouer avec, c'est la promesse de plein d'idées farfelues mais passionnantes.</p>
+<p>La chasse est passée. La 1070 continue. Et la foreuse a déjà tourné vers un nouveau terrain.</p>
+<p><em>Fin de la saga V100.</em></p>
+<hr />
+</div>
+</body>
+</html>

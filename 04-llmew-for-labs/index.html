@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4. 4. LLMEW for labs : ce que la chasse a fabriqué — saga V100</title>
+<style>
+:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  color: #1a1a1a;
+  background: #fdfdfc;
+}
+@media (prefers-color-scheme: dark) {
+  body { color: #d8d8d4; background: #121312; }
+  a { color: #2f7d4f; }
+  .meta, .foot, .site-head a, .post-index .m { color: #8a8a86; }
+  blockquote { border-color: #3a3f3b; color: #b8b8b4; }
+  hr { border-color: #2a2c2a; }
+  img { border-color: #2a2c2a; }
+  code { background: #1e201e; }
+}
+.page { max-width: 720px; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
+a { color: #2f7d4f; text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1 { font-size: 1.9rem; line-height: 1.25; margin: 0 0 0.5rem; }
+h2 { font-size: 1.35rem; margin: 2.2rem 0 0.8rem; }
+.meta { color: #6b6b66; font-size: 0.95rem; margin-bottom: 2rem; }
+p { margin: 0 0 1.1rem; }
+img { max-width: 100%; height: auto; border: 1px solid #e3e3df; border-radius: 4px; }
+blockquote { margin: 1.4rem 0; padding: 0.2rem 1.2rem; border-left: 3px solid #2f7d4f; color: #444; }
+code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.88em; background: #f0f0ec; padding: 0.1em 0.35em; border-radius: 3px; }
+ul, ol { padding-left: 1.4rem; }
+li { margin-bottom: 0.45rem; }
+hr { border: none; border-top: 1px solid #e3e3df; margin: 2.5rem 0; }
+.site-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2.5rem; }
+.site-head .brand { font-weight: 600; font-size: 1.05rem; }
+.site-head a { font-size: 0.95rem; }
+.post-index { list-style: none; padding: 0; }
+.post-index li { margin-bottom: 1.1rem; }
+.post-index .num { color: #2f7d4f; font-family: ui-monospace, Menlo, monospace; margin-right: 0.5rem; }
+.post-index .t { font-size: 1.08rem; font-weight: 600; }
+.post-index .m { display: block; color: #6b6b66; font-size: 0.88rem; margin-top: 0.1rem; }
+.nav-p { margin-top: 2.5rem; font-size: 0.95rem; }
+.nav-p a { margin-right: 1.5rem; }
+</style>
+</head>
+<body>
+<div class="page">
+<div class="site-head">
+  <a class="brand" href="../">saga V100</a>
+  <a href="../">tous les chapitres</a>
+</div>
+<h1>4. LLMEW for labs : ce que la chasse a fabriqué</h1>
+<p>La chasse aux tokens n'a pas seulement produit des kernels. Elle a produit des outils. Et j'ai donné un nom à cette couche : <strong>LLMEW for labs</strong> — <em>LLM Environment Ware for LABs</em>. C'est un clin d'œil au middleware, mais ce n'est pas un middleware : ce sont des tools qui vivent <strong>dans l'environnement de l'IA</strong>, pas dans le code du modèle. Le superviseur, les dashboards, la crontab, le protocole de re-validation. Tout ce qui permet à une seule machine d'être à la fois un labo et une prod.</p>
+<p>Le fil qui les relie, c'est le même qu'au début : <strong>je mesure</strong>. Mais cette fois, je mesure <em>l'IA</em> qui me mesure.</p>
+<h2>Demandé X, reçu un poste de contrôle</h2>
+<p>J'avais demandé un dashboard pour les tokens. Juste ça : la courbe du débit. Ce que Kolbo-5 m'a mis en place, c'est un poste de contrôle.</p>
+<p>Au début, je n'avais pas vu la profondeur de ce qu'il avait installé. Maintenant, j'en regarde quasiment tous les panneaux. Le dashboard, panneau par panneau : la vitesse de génération et le prefill en tokens/s, le contexte en cours face à la limite de 170k, la longueur d'acceptance moyenne du MTP, la température, la puissance, les deux GPU côte à côte — la 1070 en vert, la V100 en jaune. Le cœur de la saga, monitoré en continu, ce n'est pas le MTP — c'est le couple <strong>génération / contexte</strong> : le débit en tokens/s face à la taille de contexte. C'est ce que la chasse a voulu tenir, et c'est ce que je regarde en premier.</p>
+<p><img alt="Le dashboard de perf : génération, MTP acceptance, contexte vs 170k, température, puissance" src="../photos/grafana_dash1_perf.png" /></p>
+<p>Puis les statistiques de production : latence moyenne, erreurs sur la dernière heure (zéro), les requêtes par endpoint, la VRAM et sa marge sur 32 Go. Et enfin le niveau hôte : CPU, RAM, charge, la corrélation entre tokens générés et utilisation GPU, la VRAM face à la température.</p>
+<p><img alt="Le niveau hôte : CPU, RAM, charge, corrélation entre tokens générés et GPU" src="../photos/grafana_dash3_host_correlation.png" /></p>
+<p>Le même scénario s'est répété pour le thermique : j'avais demandé le monitoring des températures, j'ai reçu un tableau de bord avec tous les capteurs — CPU, la 1070, la V100 (GPU, hotspot, mémoire), les ventilateurs, la consommation, les fréquences.</p>
+<p><img alt="Le dashboard thermique : capteurs CPU, 1070, V100, ventilateurs, consommation, fréquences" src="../photos/grafana_dash4_thermique.png" /></p>
+<p>Et c'est là que j'ai compris quelque chose : <strong>les seuils de mes benches n'étaient pas arbitraires.</strong> Le hotspot de la V100 monte à 91 °C sous charge ; c'est de ce chiffre réel qu'est née la règle « température max &lt; 93 °C » qui valide (ou invalide) un bench. L'infrastructure de production a rendu le bench plus rigoureux. Le monitoring de la prod a alimenté la rigueur du labo.</p>
+<h2>Le superviseur</h2>
+<p>L'outil central, c'est le <strong>superviseur de bench</strong>. Il est né de trois problèmes superposés.</p>
+<p>D'abord, la machine n'avait pas la notion qu'elle était un <strong>labo</strong>. Elle traitait le banc d'essai comme une prod intouchable — et il était précisément un banc d'essai. Ensuite, il n'y avait <strong>qu'une seule V100</strong> : le bench et l'usage se partageaient la même carte. Arrêter ollama pour charger le binaire du bench, puis le relancer, tuait l'inférence en cours. Si j'avais eu deux V100, ça aurait été plus simple — isoler par du matériel. Je n'avais qu'une carte.</p>
+<p>Et puis il y avait le problème humain : je me levais la nuit pour relancer un bench. L'automatisation est née d'un manque de sommeil, pas d'une idée abstraite.</p>
+<p>Alors j'ai demandé à Kolbo-5 d'étudier l'API d'Open WebUI, les séquences de chat, la façon dont l'interface était manipulée — et on a co-construit le superviseur. Il <strong>se détache</strong> pour lancer le bench en tâche de fond, <strong>reprend la main</strong> quand le bench est fini, et <strong>relance l'inférence</strong>. Il tient un lock, il stoppe et restaure le service, il ne laisse rien à l'état sauvage.</p>
+<p>Un garde-fou est resté figé en <strong>première règle</strong> de mon prompt système : <em>appliquer le superviseur dès qu'un risque d'interruption est probable.</em> Sans ça, l'IA faisait le stop / charger / start à la main, et les allers-retours étaient devenus le goulot.</p>
+<p>Sur le même principe, il y a une <strong>cron de reprise de contexte</strong> : elle détecte la fin d'une inférence et relance la génération automatiquement, avec Open WebUI qui compacte la conversation au passage — pour que la conversation continue quand le contexte est plein. C'est un chantier pas encore au point, mis en pause : la compaction automatique d'OWUI sur le retour des tools (au-delà d'un seuil) a rendu la gestion du contexte plein un peu moins urgente. Mais l'outil existe, et il sera là le jour où une longue session partira vraiment dans le mur.</p>
+<h2>La foreuse</h2>
+<p>Au début, le profiling était très grossier. À la fin, on était passé à <strong>nsys et CUPTI</strong>, à disséquer des kernels CUDA au step près. Et j'ai fini par lui faire refaire les profils anciens avec les outils améliorés — parce qu'un nombre mesuré avec le mauvais outil, c'est un nombre qu'on a payé pour le jeter.</p>
+<p>Toutes ces limitations viennent d'une seule cause : <strong>le retrait du support sm_70 par NVIDIA.</strong> Il a fallu faire de l'archéologie de version pour assembler un environnement hybride — une V100, un llama récent, CUPTI, nsys — qui existe à l'intersection de versions qui ne se sont jamais croisées. Et le pire, au début, c'était CUDA 13 qui s'immiscait dans les builds, un enfer. C'est là que j'ai demandé un <strong>environnement de build reproductible</strong> pour mettre ces problèmes derrière nous.</p>
+<p>La suite, c'est la mémoire. Le contexte d'une IA n'est pas infini, et le travail qu'elle a déjà fait est une mémoire qui doit survivre à ses propres recharges. Alors Kolbo-5 documente lui-même, dans les README, ce qui se passe — il affine ses notes petit à petit pour pouvoir se <strong>restaurer</strong> en un rien de temps, d'une conversation à l'autre. Je lui ai même appris à aller lire ses propres conversations, via le superviseur : il a un token pour ça.</p>
+<h2>Ça sort de sa boîte</h2>
+<p>Un dernier exemple, plus léger. J'avais demandé à Kolbo-5 de me ranger ma collection de musique, à travers deux sauts SSH. J'avais une solution avec interruption. Il m'a dit : « pourquoi attendre, on peut le faire sans downtime. » J'ai dit ok. J'ai sorti le coca et le popcorn, parce qu'il a galéré comme un dingue. C'était rigolo.</p>
+<p>Depuis, mon lecteur affiche bien toutes les pistes, avec les bons noms. Du grand art.</p>
+<p>C'est ça, la « boucle » : une IA qui veille, qui s'auto-répare, qui sort de sa boîte, avec quelques mécanismes simples. Et le prochain sujet sérieux a déjà un nom : le cache KV. Mais ça, c'est la suite.</p>
+<hr />
+</div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1. 1. Pourquoi j&#x27;ai acheté un GPU de datacenter que je ne comprenais pas — saga V100</title>
+<style>
+:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  color: #1a1a1a;
+  background: #fdfdfc;
+}
+@media (prefers-color-scheme: dark) {
+  body { color: #d8d8d4; background: #121312; }
+  a { color: #2f7d4f; }
+  .meta, .foot, .site-head a, .post-index .m { color: #8a8a86; }
+  blockquote { border-color: #3a3f3b; color: #b8b8b4; }
+  hr { border-color: #2a2c2a; }
+  img { border-color: #2a2c2a; }
+  code { background: #1e201e; }
+}
+.page { max-width: 720px; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
+a { color: #2f7d4f; text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1 { font-size: 1.9rem; line-height: 1.25; margin: 0 0 0.5rem; }
+h2 { font-size: 1.35rem; margin: 2.2rem 0 0.8rem; }
+.meta { color: #6b6b66; font-size: 0.95rem; margin-bottom: 2rem; }
+p { margin: 0 0 1.1rem; }
+img { max-width: 100%; height: auto; border: 1px solid #e3e3df; border-radius: 4px; }
+blockquote { margin: 1.4rem 0; padding: 0.2rem 1.2rem; border-left: 3px solid #2f7d4f; color: #444; }
+code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.88em; background: #f0f0ec; padding: 0.1em 0.35em; border-radius: 3px; }
+ul, ol { padding-left: 1.4rem; }
+li { margin-bottom: 0.45rem; }
+hr { border: none; border-top: 1px solid #e3e3df; margin: 2.5rem 0; }
+.site-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2.5rem; }
+.site-head .brand { font-weight: 600; font-size: 1.05rem; }
+.site-head a { font-size: 0.95rem; }
+.post-index { list-style: none; padding: 0; }
+.post-index li { margin-bottom: 1.1rem; }
+.post-index .num { color: #2f7d4f; font-family: ui-monospace, Menlo, monospace; margin-right: 0.5rem; }
+.post-index .t { font-size: 1.08rem; font-weight: 600; }
+.post-index .m { display: block; color: #6b6b66; font-size: 0.88rem; margin-top: 0.1rem; }
+.nav-p { margin-top: 2.5rem; font-size: 0.95rem; }
+.nav-p a { margin-right: 1.5rem; }
+</style>
+</head>
+<body>
+<div class="page">
+<div class="site-head">
+  <a class="brand" href="../">saga V100</a>
+  <a href="../">tous les chapitres</a>
+</div>
+<h1>1. Pourquoi j'ai acheté un GPU de datacenter que je ne comprenais pas</h1>
+<p><strong>Juin.</strong> Au travail, certaines équipes ont accès à l'IA générative. Pas moi. Je n'avais pas de compte ChatGPT, je restais sceptique, et j'y connaissais strictement rien. Le déclic n'a pas été la curiosité. C'était un constat plus prosaïque : je regardais la vitesse de production des équipes qui utilisaient l'IA, et je me suis senti submergé. Ce n'est pas un hobby technique. C'est une réaction à une pression réelle.</p>
+<p>Alors je suis allé regarder. Premiers pas : un essai gratuit Cursor, cramé par un seul de mes scripts Python en vingt minutes — cinq ans de développement derrière, et gros le pépère. Ensuite j'ai vu le prix : une centaine de dollars par mois. J'ai refusé.</p>
+<p>Ce refus est le socle de tout le reste : <strong>je déteste devenir dépendant d'une technologie que je ne comprends pas, étant moi-même informaticien.</strong> Ce que je ne comprends pas, je ne peux pas le mesurer. Et ce que je ne peux pas mesurer, je ne le fais pas tourner dans mon infra. Tout ce qui suit — local, mesurable, publié — découle de cette phrase-là.</p>
+<h2>Une carte gratuite</h2>
+<p>La seule carte que j'avais, c'était une GTX 1070, de 2017. Elle m'avait servi à faire tourner des jeux pendant presque dix ans, et en 2026, elle allait finir par devenir une carte qui fait de l'inférence. J'avais rien à perdre : formatage complet, Windows part, Ubuntu Server arrive.</p>
+<p>Premier modèle : un 7B, qwen3.2-coder, bootstrapé avec ChatGPT. Il tournait à 5-6 tokens par seconde. Décevant sur le papier, mais honnête : <strong>cette carte était gratuite.</strong></p>
+<h2>Le mur du contexte</h2>
+<p>Le premier mur n'a pas été la vitesse. C'était le contexte. L'objectif, dès le départ, était simple : faire rentrer <em>mon</em> code dans le modèle. Le 7B n'en voulait pas. Et je ne savais rien des environnements LLM — pas de vocabulaire, pas de repères, pas de méthode.</p>
+<p>J'ai donc fait ce que je sais faire : je me suis mesuré. Ma règle, que j'appliquerai pendant cinq mois, tient en une phrase :</p>
+<blockquote>
+<p>Pour évaluer quelque chose, je dois d'abord me mesurer à lui.</p>
+</blockquote>
+<p>Dans ces premiers pas, je ne savais pas où donner de la tête. Pas de point de départ : je faisais des tests dans tous les sens. J'ai commencé avec une CLI dépouillée, un soft nommé <strong>Aider</strong> — c'est lui qui m'a donné ma première solution sur étagère. Puis la découverte du RAG, et une intuition qui m'a servi toute la période : regarder ce que les grosses plateformes payantes font, et le refaire en local. C'est comme ça que je suis tombé sur Open WebUI (OWUI).</p>
+<p>Puis une phase où je construisais tout moi-même : un RAG personnel en Python (écrit avec ChatGPT), un split des sources pour contourner le mur, une mémoire primitive via des hooks et une modification du middleware OWUI — avant de découvrir qu'OWUI le faisait déjà nativement. Chaque brique construite puis remplacée par l'équivalent sur étagère, c'était une façon d'apprendre ce que je n'aurais jamais su demander.</p>
+<p>En parallèle, le 7B était trop vieux pour le tool-calling. J'ai monté un modèle plus grand, à un token par seconde, à cheval sur 32 Go, RAM et GPU confondus. Lourd, inutilisable — mais il avait des outils natifs. C'était une révélation : ce n'était plus une boîte de dialogue, c'était <strong>une IA qui avait des bras et des jambes.</strong></p>
+<h2>Le piège des 24 Go</h2>
+<p>J'ai commencé à éplucher les catalogues GPU. RTX 3090, 24 Go : c'était la cible. Sauf qu'une année plus tôt, les annonces affichaient 450 € ; dans les enchères Le Bon Coin, j'ai vu 700-800 € pour du demandé à 1000-1100 €. Mon réflexe : <strong>MAIS NON, je vais pas payer 1000 €, c'est PAS POSSIBLE.</strong></p>
+<p>Il y avait une seconde raison, plus technique, et c'est elle qui compte : <strong>24 Go de VRAM, c'était trop petit</strong> pour ce que je voulais faire. Les vendeurs le savaient. Le marché des GPU d'occasion est peuplé de gens qui connaissent la carte mieux que l'acheteur.</p>
+<p>Mon métier, c'est l'infrastructure. Et dès qu'on raisonne en bande passante mémoire plutôt qu'en marque, on change de catalogue. C'est là que je suis tombé sur un chiffre : <strong>900 Go/s</strong>. HBM2, 32 Go, datacenter, 2017. Une Tesla V100 — fin de support, « obsolète », déclassée par tout le monde. Provenance : Hong Kong. Demande : 850 €. Payé : <strong>700 € TTC</strong>. Moins cher qu'une 3090 demandée 1000 €.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>GTX 1070 (2017)</th>
+<th>RTX 3090</th>
+<th>Tesla V100 32 GB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Architecture</td>
+<td>Pascal</td>
+<td>Ampere</td>
+<td>Volta</td>
+</tr>
+<tr>
+<td>Cœurs CUDA</td>
+<td>1 920</td>
+<td>10 496</td>
+<td>5 120</td>
+</tr>
+<tr>
+<td>Mémoire</td>
+<td>8 Go GDDR5</td>
+<td>24 Go GDDR6X</td>
+<td>32 Go HBM2</td>
+</tr>
+<tr>
+<td>Bande passante</td>
+<td>~256 Go/s</td>
+<td>~936 Go/s</td>
+<td>~900 Go/s</td>
+</tr>
+<tr>
+<td>Prix payé</td>
+<td>0 € (déjà là)</td>
+<td>— (refusée)</td>
+<td>700 € TTC</td>
+</tr>
+</tbody>
+</table>
+<p>La 3090 a plus de cinq fois plus de cœurs que la 1070 et une bande passante supérieure. Elle aurait gagné sur tout, sauf sur le seul point qui m'importait : 24 Go, c'était trop peu. La V100, elle, a trois quarts des cœurs de la 3090, une bande passante quasi identique — et le double de mémoire, en HBM2. Pour du decode long contexte, c'est la seule des trois qui tient.</p>
+<p>Elle est arrivée le 14 septembre. Et elle ne marchait pas. C'est la suite.</p>
+<hr />
+<p><em>Suivant : <a href="./02-un-boitier-de-15-ans-un-cone-de-bezier.md">2. Un boîtier de 15 ans, un cône de Bézier en feuille d'aluminium</a></em></p>
+</div>
+</body>
+</html>

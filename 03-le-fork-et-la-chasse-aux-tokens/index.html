@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3. 3. Le fork et la chasse aux tokens — saga V100</title>
+<style>
+:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  color: #1a1a1a;
+  background: #fdfdfc;
+}
+@media (prefers-color-scheme: dark) {
+  body { color: #d8d8d4; background: #121312; }
+  a { color: #2f7d4f; }
+  .meta, .foot, .site-head a, .post-index .m { color: #8a8a86; }
+  blockquote { border-color: #3a3f3b; color: #b8b8b4; }
+  hr { border-color: #2a2c2a; }
+  img { border-color: #2a2c2a; }
+  code { background: #1e201e; }
+}
+.page { max-width: 720px; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
+a { color: #2f7d4f; text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1 { font-size: 1.9rem; line-height: 1.25; margin: 0 0 0.5rem; }
+h2 { font-size: 1.35rem; margin: 2.2rem 0 0.8rem; }
+.meta { color: #6b6b66; font-size: 0.95rem; margin-bottom: 2rem; }
+p { margin: 0 0 1.1rem; }
+img { max-width: 100%; height: auto; border: 1px solid #e3e3df; border-radius: 4px; }
+blockquote { margin: 1.4rem 0; padding: 0.2rem 1.2rem; border-left: 3px solid #2f7d4f; color: #444; }
+code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.88em; background: #f0f0ec; padding: 0.1em 0.35em; border-radius: 3px; }
+ul, ol { padding-left: 1.4rem; }
+li { margin-bottom: 0.45rem; }
+hr { border: none; border-top: 1px solid #e3e3df; margin: 2.5rem 0; }
+.site-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2.5rem; }
+.site-head .brand { font-weight: 600; font-size: 1.05rem; }
+.site-head a { font-size: 0.95rem; }
+.post-index { list-style: none; padding: 0; }
+.post-index li { margin-bottom: 1.1rem; }
+.post-index .num { color: #2f7d4f; font-family: ui-monospace, Menlo, monospace; margin-right: 0.5rem; }
+.post-index .t { font-size: 1.08rem; font-weight: 600; }
+.post-index .m { display: block; color: #6b6b66; font-size: 0.88rem; margin-top: 0.1rem; }
+.nav-p { margin-top: 2.5rem; font-size: 0.95rem; }
+.nav-p a { margin-right: 1.5rem; }
+</style>
+</head>
+<body>
+<div class="page">
+<div class="site-head">
+  <a class="brand" href="../">saga V100</a>
+  <a href="../">tous les chapitres</a>
+</div>
+<h1>3. Le fork et la chasse aux tokens</h1>
+<p>Le 24 septembre, la V100 tourne, le 27B tient 128 000 tokens de contexte, et on mesure <strong>22 tokens par seconde</strong> en contexte minimal. À l'époque, ça ne paraissait pas être un problème. En fait, c'était la mauvaise question.</p>
+<h2>La carte que personne ne voulait</h2>
+<p>Deux constats, posés les uns sur les autres :</p>
+<ul>
+<li><strong>llama.cpp en amont ne compilait plus pour la V100.</strong> Le support Volta (sm_70) avait été retiré. Pour l'écosystème, ma carte était morte.</li>
+<li><strong>Les builds qui contenaient encore des optimisations Volta dataient</strong> d'avant le MTP — la spéculation multi-token qui, sur ce modèle, fait la différence entre l'utilisable et l'inutilisable au decode.</li>
+</ul>
+<p>Le fork <code>llama-volta-merged</code> avait résolu la compilation, le MTP était revenu. Et j'avais un plan : c'était d'ailleurs la seule optimisation que j'envisageais — porter un kernel qui existait déjà dans un vieux build, sur la dernière version de llama. J'avais donné l'instruction, la machine tournait. Sauf que ce kernel, une fois mesuré, a fait un gain « minuscule » — de l'ordre du pourcent.</p>
+<p>C'est là que j'ai compris que ça n'allait pas être aussi simple. Cette déception a fait partie de l'étincelle qui a mis le feu aux poudres : la brique simple n'avait rien fait, et la courbe venait de dire le contraire. Quelque chose clochait — quelque chose de creusable.</p>
+<h2>La mauvaise question</h2>
+<p>La machine n'était d'ailleurs déjà plus « de base » à ce stade : le fork embarquait un premier levier, <strong>W4R4</strong> — la multiplication matrice-vecteur Q6_K en 4-bit sur les tensor cores de la V100, activé par une variable d'environnement. Une petite brique, déjà là depuis le début, déjà mesurée en production. Les benches de la campagne allaient tous se mesurer <em>depuis</em> cette base, pas depuis un stock pur — le mot « vanilla » dans le jargon de la campagne veut dire « sans H2, sans T3, sans batch », pas « sans rien ».</p>
+<p>La vraie question, c'était ailleurs. Au contexte minimal, tout le monde tient : 25 t/s à la base, et l'écart entre n'importe quelle configuration et celle-là reste de l'ordre de quelques pourcents. Là, les optimisations ne changent rien.</p>
+<p>C'est la courbe qui compte, et la première campagne de benches l'a rendue visible. La base : 25 t/s au contexte minimal, <strong>12,5 t/s à 100k</strong>, <strong>10 t/s à 200k</strong>. Le débit ne descend pas, il s'évapore, et elle est déjà inutilisable au-delà de 100k pour des sessions longues — douze tokens par seconde, c'est un diaporama ; dix, c'est une pénitence. Et c'est en confrontant les deux — le gain minuscule de la brique, l'effondrement de la courbe — que la chasse a pris son sens : la brique n'avait rien fait <em>parce que</em> le problème était là.</p>
+<p>Donc le but de la chasse n'a jamais été le débit brut. 25 t/s, tout le monde les a. Le but, c'était <strong>de le conserver</strong> : le même débit à 2k qu'à 170k. Rendre la courbe plate là où elle s'effondre. Et quand tout ce travail est fait, le MTP s'ajoute en simple multiplicateur — il ne corrige pas la pente, il la multiplie.</p>
+<p>J'ai donné à l'IA — Kolbo-5, mon assistant, que je nomme parce qu'il a le droit à sa part de l'histoire — une consigne pour un mois : <strong>trouve les tokens.</strong></p>
+<h2>Un mois de nuits blanches</h2>
+<p>Je sais fabriquer un environnement physique pour que mon IA tourne dans les meilleures conditions : le cône de Bézier, le shroud, la courbe du ventilateur. Ça, c'était dans ma main. Écrire du C++ CUDA, par contre — là je suis 100 % incompétent. C'est pour ça que j'ai délégué cette tâche à mon modèle.</p>
+<p>Ma part, c'était le cadrage : lancer la piste, poser la question, valider ou tuer. Sa part, c'était le reste — écumer internet, lire des dépôts, porter des optimisations, compiler, bench, re-bench, profiler. J'ai passé un mois à le monitorer, à lui envoyer les pistes, à relancer. Parfois, je me suis levé la nuit pour relancer un bench qui était mort. À un moment, j'ai compris que je ne pouvais plus continuer comme ça : c'est devenu l'automatisation, pas l'effort.</p>
+<h2>L'épine du MTP</h2>
+<p>Avant même de chasser, j'ai dû composer avec la chose magique : le <strong>MTP</strong>. C'est lui qui multiplie les tokens comme des petits pains — jusqu'à deux fois le débit, sur les bons passages. Et c'est lui qui a été, pendant au moins trois semaines, une épine dans ma chaussure.</p>
+<p><img alt="MTP draft=3 vs vanilla — mêmes 8 points, même corpus, même runner, 300 tokens par point : le gain est quasi constant, ×1,9-2,2, et plus fort au long contexte" src="../photos/mtp_bestcase_curves.png" /></p>
+<p>Cette courbe, c'est le MTP ajouté à la base de la chasse — même runner, même corpus, 300 tokens par point. On lit un gain quasi constant, de ×1,9 à ×2,2, qui grossit à mesure que le contexte s'allonge. Belle. Problème : c'est un <strong>best case</strong>. Le corpus de bench est court, régulier, prédictible — le taux d'acceptance y reste énorme du début à la fin, ce qui gonfle artificiellement le résultat. Sur un vrai workload, on n'a jamais une acceptance aussi forte en continu : le taux dépend du contenu généré, il monte, il descend. Cette figure est presque un exemple édifiant du côté trompeur de la lecture d'un bench sous MTP. Le multiplicateur existe — il est juste plus discret qu'il n'en a l'air.</p>
+<p>Je ne l'avais pas bien compris, et ça m'a emmerdé un paquet de temps. Son bruit écrase les gains : quand on change une brique, l'écart mesuré est souvent du bruit de MTP, pas du signal. Et ses gains sont complètement instables — tout dépend du workload et du taux d'acceptance, qui bouge avec le contenu généré. Il y avait en plus une inconnue qui ne se posait pas toute seule : <strong>comment vérifier qu'une optimisation ne dégradait pas, en retour, le MTP ?</strong> On optimisait la version sans MTP, mais c'était la version avec MTP qui allait être déployée.</p>
+<p>Mi-octobre, j'ai donc pris une décision sèche : <strong>embargo sur le MTP</strong>. On ne disposait pas d'outils capables d'évaluer l'influence du MTP, ni l'influence d'une opti sur le débit final en combinant les deux. Alors, le temps de la campagne, le MTP s'éteint. Les benches se font sur la version nue, le signal est propre, les GO et NO-GO se décident sur du solide. C'est contre-intuitif — on bench la machine sans son multiplicateur — mais c'est la seule façon de voir clair.</p>
+<p>Le voile est tombé quand on est passés au profilage du MTP lui-même. À ce moment-là, on avait enfin un moyen de vérifier la <strong>non-régression</strong> : on optimisait la version sans MTP, et on contrôlait que le MTP, lui, ne bougeait pas. L'épine était tirée. Mais pas les pièges de la mesure, qui ont suivi jusqu'au bout : hold ou cold, début de fenêtre de capture, fin de fenêtre de capture, taux MTP… Chacun a son lot de fausses certitudes.</p>
+<h2>La fierté jetée à la poubelle</h2>
+<p>La première optimisation qui a tenu, c'était <strong>H2</strong> : un kernel d'attention custom pour la V100, mis au point sur deux ou trois jours. J'étais tellement fier que j'en ai fait ma <strong>première publication GIT</strong>.</p>
+<p>Elle a tenu en production trois ou quatre jours. Puis un kernel d'attention écrit par un contributeur a été porté sur le fork — le PR #153 d'anyei, <code>fattn-mma-volta-small</code>, je le cite parce qu'il le mérite. On a benché. H2 et ce kernel <strong>résolvaient le même problème</strong>, et le nouveau battait l'ancien, même sur sa propre géométrie.</p>
+<p>Une semaine après la première publication, H2 était à la poubelle. C'est un revers un peu honteux, que je raconte parce qu'il est le point le plus important de ce chapitre : <strong>on a jeté une optimisation qu'on aimait parce que les chiffres le disaient.</strong> Pas parce qu'elle était moche. Pas parce qu'on préférait l'autre. Parce que, mesuré sur la machine, elle était moins bonne.</p>
+<h2>Le hasard qui a tout changé</h2>
+<p>T3 est donc entré en production, H2 est sorti. Et un jour, en changeant une simple option, on a trouvé le hasard qui a tout changé : le passage du batch de 512 à 2048. Rien de théorique. Un paramètre, un bench, une courbe qui se relève. Joli retour de fond de court.</p>
+<p><img alt="b2048 × T3 — 4 jambes (base / b2048 / T3 / b2048+T3), Qwen3.8-27B Q6, V100 : la PROD (vert) tient quand la base descend" src="../photos/b2048_t3_curves.png" /></p>
+<p>La courbe ci-dessus, c'est le « après » : quatre configurations mesurées côte à côte, de la base (avec W4R4, sans les optimisations de la chasse) jusqu'à la production (batch 2048 + T3), sur toute la plage de contexte, MTP éteint pour que tout se compare à contextes égaux. C'est là que la leçon se voit : la courbe de base continue de descendre vers 10 t/s, la nôtre tient à 18-20. Le gain n'est pas en haut du graphique, c'est sur la pente. Et c'est elle qui a validé la pile.</p>
+<h2>Pourquoi 170k et pas 200k</h2>
+<p>Le 170k du climax n'est pas un chiffre arbitraire. C'est le solde d'une gestion de trésorerie sur 32 Go de HBM2, et ce solde a bougé pendant toute la chasse.</p>
+<p>J'avais passé deux semaines à 200k. La carte en pouvait, le contexte tenait. Puis deux choses sont venues le manger. D'abord la vision — un moment où j'en ai eu besoin : le mmproj, l'encodeur d'images, a pris un peu plus d'un Go de VRAM, et il fallait lui laisser de la marge, parce que vectoriser une image alloue en plus au moment de l'appel. Ensuite le hasard du b2048, qui était très gourmand. Et là, je devais rendre le contexte que j'avais.</p>
+<p>C'est là que c'est devenu pénible. J'essayais de maximiser mon contexte depuis deux semaines, et je devais en rendre. Je suis passé à 167k, avec une cinquantaine de Mo de VRAM de libre — le mmproj y rentrait, mais ne fonctionnait pas. Alors je suis descendu à 150k. Puis à 150k, le temps de préfill me plombait, et j'ai carrément lâché à 128k. Je tatonnais sévère : je testais quelques valeurs au doigt mouillet :D pour voir la différence de productivité. C'est la zone floue de la chasse, celle qu'on ne voit pas sur les courbes — des allers-retours de contexte qui ne laissent pas de trace propre.</p>
+<p>Puis deux choses ont changé la donne. Une update d'Open WebUI est venue s'immiscer dans l'histoire : ils avaient ajouté un système qui compacte automatiquement le retour des tools quand un seuil est dépassé, et j'ai joué un peu avec. Et il y avait l'optimisation du prefill, qui avait raboté le temps de préfill de l'ordre de 20 %.</p>
+<p>Alors j'ai vu l'opportunité. J'avais deux builds de llama — un pour la V100, un pour la 1070 — et la vision tournait encore sur la V100. La mission : réunir les deux cartes dans un seul build, et déplacer l'encodeur d'images sur la 1070. Ça a libéré de la VRAM sur la V100. Avec le prefill moins coûteux et le comportement d'OWUI affiné, j'ai pu remonter le contexte, et le stabiliser à 170k. Pas 200k — le b2048 gardait sa part. C'est une somme de tradeoffs, pas une décision.</p>
+<p>Et la 1070, dans tout ça ? Elle encode les images, 3 à 6 secondes, pendant que la V100 fait du decode. On a benché les deux jambes côte à côte : le chemin de la V100 est resté neutre, à moins d'un pour cent près. La seconde vie de la 1070 n'est pas un clin d'œil — elle porte un vrai poids.</p>
+<h2>Le point d'équilibre</h2>
+<p>Et puis il y a eu le moment.</p>
+<p>Quand toutes les optimisations, empilées les unes sur les autres, ont fait tenir le débit de base à <strong>19 t/s à 170 000 tokens de contexte</strong> — là où la même base sans H2, T3 ni batch était tombée à 10 — et que le MTP a ensuite multiplié le tout : <strong>35-40 tokens par seconde</strong>, sur une V100 de 2017, avec un modèle de 27B en Q6. Là, j'ai eu un grand sourire intérieur, un sentiment de victoire totale, qui m'anime encore là maintenant, pendant que j'écris ces lignes.</p>
+<p>Un mois de nuits blanches. Un mois dans une autre dimension. Et la certitude, en regardant la courbe du débit <strong>tenir jusqu'à 170k</strong>, que tout ce qui se disait sur les GPU anciens était, <strong>juste du blabla</strong>.</p>
+<p>Putain. Bordel. C'est beau, et c'est mortel. C'est résilient, c'est affûté, c'est dingue.</p>
+<p>On a réussi, mon Kolbo.</p>
+<hr />
+</div>
+</body>
+</html>

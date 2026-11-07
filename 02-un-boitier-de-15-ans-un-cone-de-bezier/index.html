@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2. 2. Un boîtier de 15 ans, un cône de Bézier en feuille d&#x27;aluminium — saga V100</title>
+<style>
+:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  color: #1a1a1a;
+  background: #fdfdfc;
+}
+@media (prefers-color-scheme: dark) {
+  body { color: #d8d8d4; background: #121312; }
+  a { color: #2f7d4f; }
+  .meta, .foot, .site-head a, .post-index .m { color: #8a8a86; }
+  blockquote { border-color: #3a3f3b; color: #b8b8b4; }
+  hr { border-color: #2a2c2a; }
+  img { border-color: #2a2c2a; }
+  code { background: #1e201e; }
+}
+.page { max-width: 720px; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
+a { color: #2f7d4f; text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1 { font-size: 1.9rem; line-height: 1.25; margin: 0 0 0.5rem; }
+h2 { font-size: 1.35rem; margin: 2.2rem 0 0.8rem; }
+.meta { color: #6b6b66; font-size: 0.95rem; margin-bottom: 2rem; }
+p { margin: 0 0 1.1rem; }
+img { max-width: 100%; height: auto; border: 1px solid #e3e3df; border-radius: 4px; }
+blockquote { margin: 1.4rem 0; padding: 0.2rem 1.2rem; border-left: 3px solid #2f7d4f; color: #444; }
+code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.88em; background: #f0f0ec; padding: 0.1em 0.35em; border-radius: 3px; }
+ul, ol { padding-left: 1.4rem; }
+li { margin-bottom: 0.45rem; }
+hr { border: none; border-top: 1px solid #e3e3df; margin: 2.5rem 0; }
+.site-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2.5rem; }
+.site-head .brand { font-weight: 600; font-size: 1.05rem; }
+.site-head a { font-size: 0.95rem; }
+.post-index { list-style: none; padding: 0; }
+.post-index li { margin-bottom: 1.1rem; }
+.post-index .num { color: #2f7d4f; font-family: ui-monospace, Menlo, monospace; margin-right: 0.5rem; }
+.post-index .t { font-size: 1.08rem; font-weight: 600; }
+.post-index .m { display: block; color: #6b6b66; font-size: 0.88rem; margin-top: 0.1rem; }
+.nav-p { margin-top: 2.5rem; font-size: 0.95rem; }
+.nav-p a { margin-right: 1.5rem; }
+</style>
+</head>
+<body>
+<div class="page">
+<div class="site-head">
+  <a class="brand" href="../">saga V100</a>
+  <a href="../">tous les chapitres</a>
+</div>
+<h1>2. Un boîtier de 15 ans, un cône de Bézier en feuille d'aluminium</h1>
+<p>La V100 est arrivée le 14 septembre. Sauf qu'elle était une blade de datacenter, passive : sans ventilateur, sans shroud, conçue pour être placée dans un serveur dont le flux d'air est forcé par des ventilateurs de 140 mm à pleine puissance. Dans un boîtier de bureau, ça ne fonctionne pas. C'était le problème à résoudre, et il a pris dix jours.</p>
+<p>Pour ceux qui veulent la machine complète : le boîtier du PC a quinze ans, mais le plateau dedans est neuf — MSI B550-A PRO, Ryzen 5 5600X, 32 Go de RAM, acheté en novembre 2025, monté dans le vieil habillage. La V100 et la 1070 sont les deux cartes, côte à côte.</p>
+<h2>L'avion qui décolle</h2>
+<p>J'avais déjà regardé les solutions de refroidissement avant la livraison. Le constat : ce qui existait, c'était « un bruit d'avion qui décolle dans mon salon ». Des kits à ventilateurs radiaux, des radiateurs surdimensionnés, des prix qui grimpaient. Rien de convaincant.</p>
+<p>J'ai donc cherché sur Reddit, et quelqu'un y avait fait exactement ce qu'il me fallait : un ventilateur de 120 mm monté sur le shroud de la carte, en flux axial. Le bruit tombe d'un cran, et la place tient. J'ai pris un Arctic P12 max, un shroud, et le reste, je l'ai fabriqué.</p>
+<p><img alt="Le boîtier, avant pose du cône et découpe de la façade — la V100 avec son shroud imprimé, la 1070 en dessous" src="../photos/v100_boitier_cone_before.jpg" /></p>
+<p>Restait à guider l'air du ventilateur jusqu'à la grille, sans qu'il déborde sur les côtés. En aérodynamique, ça s'appelle un <strong>cône de Bézier</strong> — une surface de révolution, du genre de celles qu'on retrouve sur les tuyaux de vidange. J'en ai réalisé un dans une feuille d'aluminium, plié et fixé à la main.</p>
+<p><img alt="Le cône de Bézier en feuille d'alu, trois vis à tête six pans, le P12 max au fond" src="../photos/v100_cone_bezier_alu.jpg" /></p>
+<p>Le boîtier du PC, lui, date de quinze ans. J'ai découpé le châssis au Dremel pour faire de la place à la carte, à son shroud — imprimé en 3D, façon shroud NVIDIA — et à son cône. Les disques durs ont fini dans les baies CD-ROM : plus personne n'en utilise, c'était la seule place disponible.</p>
+<p>C'était le 24 septembre. Dix jours.</p>
+<h2>L'écran noir</h2>
+<p>Premier boot : le PC s'allume, la carte tourne, mais l'écran reste noir. Le doute qui vient immédiatement : j'ai acheté une carte morte à 700 €.</p>
+<p>Non. C'était un réglage BIOS. Le framebuffer de 32 Go de la V100 dépasse l'espace d'adressage sous 4 Go du chipset, et sans l'option <strong>Above 4G Decoding</strong> activée, le système ne peut pas initialiser la carte. ChatGPT m'a donné la réponse en une ligne. J'ai activé l'option, rebooté. L'écran s'est allumé. La carte était saine.</p>
+<h2>Le ventilateur qui suit la carte</h2>
+<p>Le P12 max est PWM, branché sur un connecteur ventilateur de la carte mère. Sauf qu'il restait un point dur : le BIOS ne parvenait pas à lire la température de la V100. Une carte datacenter, ses capteurs ne se branchent pas sur ce que le contrôle de ventilateurs du BIOS sait lire. Du coup, aucune courbe de ventilateur du BIOS ne pouvait suivre la carte. Et une courbe figée, sur une machine qui tourne jour et nuit, c'est soit un avion au repos, soit une carte à 90 degrés en charge.</p>
+<p>J'ai donc installé <strong>CoolerControl</strong>. Le démon fait exactement ce qu'il fallait : il lit la température GPU de la V100 — le système d'exploitation la voit parfaitement, c'est le BIOS qui est aveugle — et il pilote le canal PWM du ventilateur avec une courbe maison. J'ai dessiné la courbe, calibré. Le profil est toujours là : « GPU Fan (Performance, Calibrated) », la source de température : la V100.</p>
+<p>Résultat : le ventilateur reste au régime bas, et monte quand la charge arrive. Une carte passive, en production jour et nuit, à température contrôlée — dans un boîtier plus vieux que la carte elle-même.</p>
+<h2>Jour et nuit</h2>
+<p>Et c'est là que tout a accéléré.</p>
+<p>Jusqu'ici, le modèle qui tournait sur la 1070 était un 27B quantisé en Q4, à cheval sur la VRAM et la RAM système, avec un contexte limité. Sur la V100, il s'est chargé <strong>intégralement sur la carte</strong> : 27B en Q4, 32 Go de HBM2, et <strong>128 000 tokens de contexte</strong>. Le jour. Et la nuit.</p>
+<p>Le mur du contexte — celui que je contournais depuis juillet avec le split des sources — est tombé d'un coup. Pas parce qu'il a bougé. Parce que la machine a grossi.</p>
+<p>C'est aussi à ce moment que j'ai donné un shell à l'IA — plus le web search. La première action de l'IA : inspecter la machine. Le constat était sans appel. Services systemd écrits dans tous les sens, des wrappers pourris pour démarrer les services dépendants (open-terminal, searxng), des fichiers qui dataient de trois tentatives différentes. C'était ma machine, mon bricolage, mes dettes.</p>
+<p>La première tâche : nettoyer tout ça. Et juste après, on est partis à la chasse aux tokens — ensemble. On tournait à 22 tokens par seconde en contexte minimal. C'était peu, mais c'était la base de mesures, et elle était saine.</p>
+<p>Sauf que, très vite, deux constats ont posé problème :</p>
+<ol>
+<li><strong>Plus aucune version récente de llama.cpp ne compilait pour la V100.</strong> Le support Volta (sm_70) avait été retiré en amont. La carte était techniquement morte pour l'écosystème.</li>
+<li><strong>Les builds qui contenaient encore des optimisations Volta étaient trop anciens</strong> pour activer le MTP — la spéculation multi-token qui, sur un modèle comme celui-là, change tout au decode.</li>
+</ol>
+<p>Donc : soit un llama récent qui ne marchait pas sur ma carte, soit un llama qui marchait mais sans MTP. Les deux portes étaient fermées.</p>
+<p>Je ne sais pas faire du C++ kernel. J'avais, par contre, un ancien build de llama.cpp qui contenait déjà une optimisation Volta — un truc qui compilait encore pour la carte, sur du code d'une autre époque. Alors j'ai démarré l'IA, et la première chose demandée : porter cette optimisation de l'ancien build sur le dernier llama.cpp. Merge, compilation, tests : le travail lourd, c'est l'IA qui l'a fait. Le cadrage — ce qu'on portait, pourquoi, sur quelle base — c'était moi.</p>
+<p>C'est comme ça que le fork <code>llama-volta-merged</code> est apparu. Le nom dit tout : le dernier llama.cpp, plus l'optimisation Volta portée depuis l'ancien. Le fork n'est pas né de l'optimisation : il est né d'un besoin de compilation. Les optimisations vraies sont venues après, dans la chasse.</p>
+<hr />
+</div>
+</body>
+</html>

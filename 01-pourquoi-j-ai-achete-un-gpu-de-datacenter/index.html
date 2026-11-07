@@ -72,7 +72,7 @@ hr { border: none; border-top: 1px solid #e3e3df; margin: 2.5rem 0; }
 <p>Puis une phase où je construisais tout moi-même : un RAG personnel en Python (écrit avec ChatGPT), un split des sources pour contourner le mur, une mémoire primitive via des hooks et une modification du middleware OWUI — avant de découvrir qu'OWUI le faisait déjà nativement. Chaque brique construite puis remplacée par l'équivalent sur étagère, c'était une façon d'apprendre ce que je n'aurais jamais su demander.</p>
 <p>En parallèle, le 7B était trop vieux pour le tool-calling. J'ai monté un modèle plus grand, à un token par seconde, à cheval sur 32 Go, RAM et GPU confondus. Lourd, inutilisable — mais il avait des outils natifs. C'était une révélation : ce n'était plus une boîte de dialogue, c'était <strong>une IA qui avait des bras et des jambes.</strong></p>
 <h2>Le piège des 24 Go</h2>
-<p>J'ai commencé à éplucher les catalogues GPU. RTX 3090, 24 Go : c'était la cible. Sauf qu'une année plus tôt, les annonces affichaient 450 € ; dans les enchères Le Bon Coin, j'ai vu 700-800 € pour du demandé à 1000-1100 €. Mon réflexe : <strong>MAIS NON, je vais pas payer 1000 €, c'est PAS POSSIBLE.</strong></p>
+<p>J'ai commencé à éplucher les catalogues GPU. RTX 3090, 24 Go : c'était la cible. Sauf qu'une année plus tôt, les annonces affichaient 450 € ; dans les enchères Le Bon Coin, j'ai enchéri 700-800 € pour du demandé à 1000-1100 €. Mon réflexe : <strong>MAIS NON, je vais pas payer 1000 €, c'est PAS POSSIBLE.</strong></p>
 <p>Il y avait une seconde raison, plus technique, et c'est elle qui compte : <strong>24 Go de VRAM, c'était trop petit</strong> pour ce que je voulais faire. Les vendeurs le savaient. Le marché des GPU d'occasion est peuplé de gens qui connaissent la carte mieux que l'acheteur.</p>
 <p>Mon métier, c'est l'infrastructure. Et dès qu'on raisonne en bande passante mémoire plutôt qu'en marque, on change de catalogue. C'est là que je suis tombé sur un chiffre : <strong>900 Go/s</strong>. HBM2, 32 Go, datacenter, 2017. Une Tesla V100 — fin de support, « obsolète », déclassée par tout le monde. Provenance : Hong Kong. Demande : 850 €. Payé : <strong>700 € TTC</strong>. Moins cher qu'une 3090 demandée 1000 €.</p>
 <table>
@@ -119,8 +119,6 @@ hr { border: none; border-top: 1px solid #e3e3df; margin: 2.5rem 0; }
 </table>
 <p>La 3090 a plus de cinq fois plus de cœurs que la 1070 et une bande passante supérieure. Elle aurait gagné sur tout, sauf sur le seul point qui m'importait : 24 Go, c'était trop peu. La V100, elle, a trois quarts des cœurs de la 3090, une bande passante quasi identique — et le double de mémoire, en HBM2. Pour du decode long contexte, c'est la seule des trois qui tient.</p>
 <p>Elle est arrivée le 14 septembre. Et elle ne marchait pas. C'est la suite.</p>
-<hr />
-<p><em>Suivant : <a href="./02-un-boitier-de-15-ans-un-cone-de-bezier.md">2. Un boîtier de 15 ans, un cône de Bézier en feuille d'aluminium</a></em></p>
 </div>
 </body>
 </html>

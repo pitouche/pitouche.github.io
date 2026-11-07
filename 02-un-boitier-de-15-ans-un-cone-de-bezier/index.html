@@ -75,7 +75,7 @@ hr { border: none; border-top: 1px solid #e3e3df; margin: 2.5rem 0; }
 <p>Résultat : le ventilateur reste au régime bas, et monte quand la charge arrive. Une carte passive, en production jour et nuit, à température contrôlée — dans un boîtier plus vieux que la carte elle-même.</p>
 <h2>Jour et nuit</h2>
 <p>Et c'est là que tout a accéléré.</p>
-<p>Jusqu'ici, le modèle qui tournait sur la 1070 était un 27B quantisé en Q4, à cheval sur la VRAM et la RAM système, avec un contexte limité. Sur la V100, il s'est chargé <strong>intégralement sur la carte</strong> : 27B en Q4, 32 Go de HBM2, et <strong>128 000 tokens de contexte</strong>. Le jour. Et la nuit.</p>
+<p>Jusqu'ici, le modèle qui tournait sur la 1070 était un 27B quantisé en Q4, à cheval sur la VRAM et la RAM système, avec un contexte limité. En basculant sur la V100, je suis passé en Q6, et le modèle s'est chargé intégralement sur la carte : 27B en Q6, 32 Go de HBM2, et <strong>128 000 tokens de contexte</strong>. Le jour. Et la nuit.</p>
 <p>Le mur du contexte — celui que je contournais depuis juillet avec le split des sources — est tombé d'un coup. Pas parce qu'il a bougé. Parce que la machine a grossi.</p>
 <p>C'est aussi à ce moment que j'ai donné un shell à l'IA — plus le web search. La première action de l'IA : inspecter la machine. Le constat était sans appel. Services systemd écrits dans tous les sens, des wrappers pourris pour démarrer les services dépendants (open-terminal, searxng), des fichiers qui dataient de trois tentatives différentes. C'était ma machine, mon bricolage, mes dettes.</p>
 <p>La première tâche : nettoyer tout ça. Et juste après, on est partis à la chasse aux tokens — ensemble. On tournait à 22 tokens par seconde en contexte minimal. C'était peu, mais c'était la base de mesures, et elle était saine.</p>
@@ -87,6 +87,7 @@ hr { border: none; border-top: 1px solid #e3e3df; margin: 2.5rem 0; }
 <p>Donc : soit un llama récent qui ne marchait pas sur ma carte, soit un llama qui marchait mais sans MTP. Les deux portes étaient fermées.</p>
 <p>Je ne sais pas faire du C++ kernel. J'avais, par contre, un ancien build de llama.cpp qui contenait déjà une optimisation Volta — un truc qui compilait encore pour la carte, sur du code d'une autre époque. Alors j'ai démarré l'IA, et la première chose demandée : porter cette optimisation de l'ancien build sur le dernier llama.cpp. Merge, compilation, tests : le travail lourd, c'est l'IA qui l'a fait. Le cadrage — ce qu'on portait, pourquoi, sur quelle base — c'était moi.</p>
 <p>C'est comme ça que le fork <code>llama-volta-merged</code> est apparu. Le nom dit tout : le dernier llama.cpp, plus l'optimisation Volta portée depuis l'ancien. Le fork n'est pas né de l'optimisation : il est né d'un besoin de compilation. Les optimisations vraies sont venues après, dans la chasse.</p>
+<nav class="nav-p">Précédent : <a href="../01-pourquoi-j-ai-achete-un-gpu-de-datacenter/">1. Pourquoi j&#x27;ai acheté un GPU de datacenter que je ne comprenais pas</a> — Suivant : <a href="../03-le-fork-et-la-chasse-aux-tokens/">3. Le fork et la chasse aux tokens</a></nav>
 </div>
 </body>
 </html>
